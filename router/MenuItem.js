@@ -47,5 +47,41 @@ router.post("/menuItem", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+// Placeholder for PUT route
+router.put("/:id", async (req, res) => {
+    try {
+        const dataId = req.params.id;
+        const bodyData = req.body;
+        const updatedPerson = await MenuItem.findByIdAndUpdate(dataId, bodyData, {
+            new: true, // Return the updated document
+            runValidators: true, // Run Mongoose validation
 
+        })
+        if (!updatedPerson) {
+            return res.status(404).json({
+                error: 'Person not found'
+            });
+        }
+        res.json(updatedPerson);
+    } catch (error) {
+        console.error('Error updating person:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+router.delete("/:id", async (req, res) => {
+    try {
+        const dataDumyId = req.params.id;
+        const bodyDelteId = req.body;
+        const dumyData = await MenuItem.findByIdAndUpdate(dataDumyId, bodyDelteId);
+        if (!dumyData) {
+            return res.status(404).json({ error: 'Person not found' });
+        }
+        // Send a success message as a JSON response
+        res.json({ message: 'menu deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting person:', error);
+        res.status(500).json({ error: 'Internal server error' });
+
+    }
+})
 module.exports = router;

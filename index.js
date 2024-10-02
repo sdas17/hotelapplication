@@ -1,11 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
-// const { db } = require("./database/db");
-// const Person = require("./model/Person");
-// const MenuItem = require("./router/model/Menu");
 
-// Load environment variables from .env file
 dotenv.config();
 
 let app = express();
