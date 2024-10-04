@@ -1,10 +1,11 @@
 const express = require('express');
 const Person = require("../model/Person");
 const { db } = require("../database/db");
+const { jwtAuthMiddleware, generateToken } = require("../jwt")
 
 const router = express.Router();
 // Define routes for /person
-router.get('/', async (req, res) => {
+router.get('/', jwtAuthMiddleware, async (req, res) => {
     try {
         const persons = await Person.find();
         res.json(persons);
@@ -34,6 +35,26 @@ router.get("/:workdType", async (req, res) => {
         res.status(404).json({ error: "Invalid Work type" });
     }
 });
+router.post("/login", async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const user = await Person.findOne({ username: username });
+
+        if (!user || !(await user.comparePassword(password))) {
+            return res.status(401).json({ message: 'Invalid username or password' });
+        }
+        //gernate Token
+        const payload = {
+            id: user.id,
+            username: user.username
+        }
+        const token = generateToken(payload)
+        res.json({ token })
+
+    } catch (error) {
+
+    }
+})
 router.post('/', async (req, res) => {
     try {
         const method = req.body;
@@ -43,8 +64,15 @@ router.post('/', async (req, res) => {
         const dumydata = new Person(method);
         const savedPerson = await dumydata.save();
         console.log("Saved person to database");
+        const payload = {
+            id: savedPerson.id,
+            username: savedPerson.username
+        }
+        const token = generateToken(payload)
+        console.log(token);
 
-        res.status(201).json(savedPerson);
+
+        res.status(201).json({ userinfo: savedPerson, token: token });
     } catch (error) {
         console.error("Error saving person:", error);
         res.status(500).json({ error: "Internal server error" });
